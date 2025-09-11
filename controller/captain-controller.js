@@ -11,14 +11,16 @@ module.exports.registerCaptain = async (req, res, next) => {
 
     try {
         const errors = validationResult(req);
-        if (!errors.isEmpty()) return res.status(401).json({ errors: errors.array() });
+        if (!errors.isEmpty()){ 
+            console.log(errors.array())
+            return res.status(400).json({ errors: errors.array() });}
 
         const { fullname, mobile, vehicle, otp } = req.body;
 
         //verify otp
         const validOtp = otpStore.get(mobile);
         if (validOtp !== otp) {
-            return res.status(400).json({ message: "Invalid OTP" });
+            return res.status(400).json({ errors: "Invalid OTP".array() });
 
         }
 
@@ -26,9 +28,9 @@ module.exports.registerCaptain = async (req, res, next) => {
 
         const isCaptainAlreadyExist = await captainModel.findOne({ mobile });
 
-        if (isCaptainAlreadyExist) return res.status(401).json({ message: "captain already exist" });
+        if (isCaptainAlreadyExist) return res.status(401).json({ errors: "captain already exist".array() });
 
-        if (!fullname || !mobile || !vehicle) return res.status(401).json({ message: "All fields are required" });
+        if (!fullname || !mobile || !vehicle) return res.status(401).json({ errors: "All fields are required".array() });
 
 
 
@@ -44,6 +46,7 @@ module.exports.registerCaptain = async (req, res, next) => {
         res.status(201).json({captain, token});
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error })
     }
 }
@@ -51,9 +54,14 @@ module.exports.registerCaptain = async (req, res, next) => {
 
 module.exports.sendOTP = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()){ 
+            console.log(errors.array())
+            return res.status(400).json({ errors: errors.array() });}
+
         const { mobile } = req.body;
 
-        if (!mobile) return res.status(400).json({ message: "Mobile number is required" });
+        if (!mobile) return res.status(400).json({ errors: ["Mobile number is required"]});
 
         // Generate 6 digit OTP
         const otp = otpGenerator.generate(6, {
@@ -72,10 +80,10 @@ module.exports.sendOTP = async (req, res) => {
         //   to: `+91${mobile}`, // change country code accordingly
         // });
 
-        return res.json({ message: "OTP sent successfully", otp });
+        return res.status(200).json({ message: "OTP sent successfully", otp });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Something went wrong" });
+        res.status(500).json({ errors: ["Something went wrong"] });
     }
 };
 
@@ -84,12 +92,12 @@ module.exports.verifyOTP = async (req, res, next) => {
         const { mobile, otp } = req.body;
 
         if (!mobile || !otp) {
-            return res.status(400).json({ message: "Mobile and OTP are required" });
+            return res.status(400).json({ errors: ["Mobile and OTP are required"] });
         }
 
         const validOtp = otpStore.get(mobile);
         if (validOtp !== otp) {
-            return res.status(400).json({ message: "Invalid OTP" });
+            return res.status(400).json({ errors: ["Invalid OTP"] });
         }
 
 
@@ -105,7 +113,7 @@ module.exports.verifyOTP = async (req, res, next) => {
         otpStore.delete(mobile); // clear OTP after use
         const token = captain.generateAuthToken();
 
-       res.cookie("token",token)
+        res.cookie("token",token)
         return res.status(201).json({ captainExist: true, token });
 
     } catch (err) {

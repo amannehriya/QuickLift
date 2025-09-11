@@ -51,7 +51,7 @@ Send as JSON (Content-Type: application/json):
     or
     ```json
     {
-      "message": "user already exist"
+      "errors": "user already exist"
     }
     ```
 
