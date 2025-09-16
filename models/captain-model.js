@@ -53,11 +53,11 @@ const captainSchema = mongoose.Schema({
     },
 
     location: {
-        ltd: {
-            type: Number,
+        lat: {
+            type: Number, //latitude
         },
-        lng: {
-            type: Number,
+        lon: {
+            type: Number, //longitude
         }
     }
 });
@@ -66,6 +66,8 @@ captainSchema.methods.generateAuthToken = function () {
     const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET)
     return token;
 }
+
+
 
 
 const captainModel = mongoose.model('captain', captainSchema);

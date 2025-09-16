@@ -16,12 +16,14 @@ module.exports.user = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await userModel.findById(decoded._id);
+        console.log("hello")
 
         req.user = user;  //req.user = user makes the logged-in user available across your request cycle.
 
         return next();
 
     } catch (error) {
+        console.log(error)
         return res.status(400).json({ message: "Unauthorized" });
     }
 }

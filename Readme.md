@@ -192,7 +192,185 @@ Logs out the authenticated user by clearing the token cookie and blacklisting th
 - Auth: Set cookie or Authorization header with valid token.
 
 
-## POST `/captain/send-otp`
+
+---
+
+## POST `/ride/create`
+
+### Description
+Creates a new ride request for a user.
+
+### Request Body
+Send as JSON (Content-Type: application/json):
+
+```json
+{
+  "pickup": "Pickup Location",
+  "destination": "Destination Location",
+  "vehicleType": "car|bike|auto",
+  "pickupCoordinates": { "lat": 28.61, "lng": 77.23 }
+}
+```
+
+- `pickup` (string, required)
+- `destination` (string, required)
+- `vehicleType` (string, required)
+- `pickupCoordinates` (object, required, `{ lat, lng }`)
+
+### Status Codes & Responses
+
+- **201 Created**
+  - Ride created successfully.
+  - Response:
+    ```json
+    {
+      "ride": { /* ride details */ }
+    }
+    ```
+- **400 Bad Request**
+  - Validation failed or missing fields.
+  - Response:
+    ```json
+    { "errors": [ { "msg": "..." } ] }
+    ```
+
+---
+
+## GET `/ride/get-fare`
+
+### Description
+Returns fare estimate and distance for a given pickup and destination.
+
+### Request
+- Query parameters:
+  - `pickup` (string, required)
+  - `destination` (string, required)
+
+### Status Codes & Responses
+
+- **200 OK**
+  - Response:
+    ```json
+    {
+      "distance": 12.5,
+      "fare": { "car": 120, "bike": 80, "auto": 100 }
+    }
+    ```
+- **400 Bad Request**
+  - Missing or invalid parameters.
+  - Response:
+    ```json
+    { "errors": [ { "msg": "..." } ] }
+    ```
+
+---
+
+## POST `/ride/confirm`
+
+### Description
+Confirms a ride and assigns a driver/captain.
+
+### Request Body
+Send as JSON (Content-Type: application/json):
+
+```json
+{
+  "rideId": "<ride_id>"
+}
+```
+
+- `rideId` (string, required)
+
+### Status Codes & Responses
+
+- **200 OK**
+  - Ride confirmed and driver assigned.
+  - Response:
+    ```json
+    {
+      "ride": { /* updated ride details */ }
+    }
+    ```
+- **400 Bad Request**
+  - Invalid ride ID or ride not found.
+  - Response:
+    ```json
+    { "errors": [ { "msg": "..." } ] }
+    ```
+
+---
+
+## POST `/ride/start-ride`
+
+### Description
+Marks the ride as started by the captain.
+
+### Request Body
+Send as JSON (Content-Type: application/json):
+
+```json
+{
+  "rideId": "<ride_id>"
+}
+```
+
+- `rideId` (string, required)
+
+### Status Codes & Responses
+
+- **200 OK**
+  - Ride started successfully.
+  - Response:
+    ```json
+    {
+      "ride": { /* updated ride details */ }
+    }
+    ```
+- **400 Bad Request**
+  - Invalid ride ID or ride not found.
+  - Response:
+    ```json
+    { "errors": [ { "msg": "..." } ] }
+    ```
+
+---
+
+## POST `/ride/end-ride`
+
+### Description
+Marks the ride as completed.
+
+### Request Body
+Send as JSON (Content-Type: application/json):
+
+```json
+{
+  "rideId": "<ride_id>"
+}
+```
+
+- `rideId` (string, required)
+
+### Status Codes & Responses
+
+- **200 OK**
+  - Ride ended successfully.
+  - Response:
+    ```json
+    {
+      "ride": { /* updated ride details */ }
+    }
+    ```
+- **400 Bad Request**
+  - Invalid ride ID or ride not found.
+  - Response:
+    ```json
+    { "errors": [ { "msg": "..." } ] }
+    ```
+
+---
+
+
 
 ### Description
 Sends a 6-digit OTP to the provided mobile number for captain registration or login verification.
